@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mapping Emergency Centers in Ramallah city
-</title>
+    <title>Mapping Emergency Centers in Ramallah city</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.min.css" />
     <style>
-        #map {   height: 100vh;
-             }
-      /*  .legend { 
+        #map { height: 100vh; }
+        .legend { 
             background: white; 
             line-height: 1.5em;
             padding: 6px 8px;
             font: 14px/16px Arial, Helvetica, sans-serif;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             border-radius: 5px;
-        }*/
+        }
+        .leaflet-control-search {
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -25,15 +27,12 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.min.js"></script>
     <script>
-        // إنشاء الخريطة وتعيين المركز لعرض طبقة RamallahZones في منتصف الخريطة
         var map = L.map('map').setView([31.95, 35.2], 13);
 
-        // إضافة طبقة الأساس
-        var baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
         }).addTo(map);
 
-        // دالة لإنشاء طبقة GeoJSON
         function createGeoJsonLayer(url, propertyName, pointToLayerFunction, style) {
             var layer = L.geoJson(null, {
                 pointToLayer: pointToLayerFunction,
@@ -56,7 +55,6 @@
             return layer;
         }
 
-// دالة لتحديد لون العلامات (النقاط)
         function pointToLayerFunctionFactory(color) {
             return function (feature, latlng) {
                 return L.circleMarker(latlng, {
@@ -70,23 +68,18 @@
             };
         }
 
-        // إنشاء الطبقات مع الألوان المطلوبة
         var zonesLayer = createGeoJsonLayer('RamallahZones.geojson', 'NAME', null, {color: 'orange', fillOpacity: 0});
         var hospitalLayer = createGeoJsonLayer('hospital.geojson', 'NAME_AR', pointToLayerFunctionFactory('red'), null);
         var civilLayer = createGeoJsonLayer('ciivilld.geojson', 'Name', pointToLayerFunctionFactory('yellow'), null);
         var pharmacyLayer = createGeoJsonLayer('pharmacy.geojson', 'NAME_AR', pointToLayerFunctionFactory('green'), null);
         var policeLayer = createGeoJsonLayer('Police.geojson', 'NAME_AR_1', pointToLayerFunctionFactory('blue'), null);
-        
 
-
-        // إضافة الطبقات إلى الخريطة
         zonesLayer.addTo(map);
         hospitalLayer.addTo(map);
         civilLayer.addTo(map);
         pharmacyLayer.addTo(map);
         policeLayer.addTo(map);
 
-        // إنشاء تحكم بالطبقات
         var overlayMaps = {
             "Hospitals": hospitalLayer,
             "Civil Defense Centers": civilLayer,
@@ -97,36 +90,20 @@
 
         L.control.layers(null, overlayMaps).addTo(map);
 
-        // إضافة أدوات البحث
-     // دالة لإنشاء أداة البحث العامة
-function createUnifiedSearchControl(layers) {
-    var searchControl = new L.Control.geosearch({
-        position: 'topright',
-        provider: new L.GeoSearch.Provider.OpenStreetMap(),
-        showMarker: false, // عدم عرض علامة على الموقع المحدد
-        showPopup: false, // عدم عرض نافذة منبثقة عند البحث
-        retainZoomLevel: false, // تعيين مستوى التكبير إلى مستوى البحث
-        autoComplete: true, // تمكين الإكمال التلقائي
-        searchLabel: 'Enter address or place', // نص البحث
-        keepResult: true // الاحتفاظ بالنتيجة بعد البحث
-    });
+        var searchControl = new L.Control.Search({
+            layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
+            propertyName: 'NAME_AR',
+            moveToLocation: function(latlng, title, map) {
+                map.setView(latlng, 15);
+            }
+        });
 
-    // استجابة الأداة للنتائج
-    searchControl.on('results', function(data){
-        // عرض النتائج
-        console.log(data);
-    });
+        searchControl.on('search:locationfound', function(e) {
+            e.layer.openPopup();
+        });
 
-    return searchControl;
-}
+        map.addControl(searchControl);
 
-// إنشاء أداة البحث العامة وإضافتها إلى الخريطة
-var unifiedSearchControl = createUnifiedSearchControl();
-map.addControl(unifiedSearchControl);
-
-
-
-        // إضافة مفتاح الخريطة وتحديثه ليعكس الألوان
         var legend = L.control({position: 'bottomright'});
 
         legend.onAdd = function (map) {
@@ -144,4 +121,3 @@ map.addControl(unifiedSearchControl);
     </script>
 </body>
 </html>
-
