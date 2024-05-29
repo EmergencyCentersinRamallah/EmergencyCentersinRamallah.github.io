@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-sidebar/src/L.Control.Sidebar.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <style>
         #map { height: 100vh; }
         .legend { 
@@ -30,7 +31,6 @@
             background-color: rgba(255, 255, 255, 0.8);
             border: 2px solid #777;
             border-radius: 5px;
-            z-index: 1000;
         }
         .leaflet-control-northarrow {
             position: absolute;
@@ -116,6 +116,7 @@
     <script src="https://rawgit.com/rowanwins/leaflet-easyPrint/gh-pages/dist/bundle.js"></script>
     <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
     <script src="https://unpkg.com/leaflet-sidebar/src/L.Control.Sidebar.js"></script>
+    <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <script>
         var map = L.map('map').setView([31.95, 35.2], 12);
 
@@ -233,6 +234,32 @@
         });
         measureControl.addTo(map);
 
+        // Adding draw control
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        var drawControl = new L.Control.Draw({
+            position: 'topleft',
+            draw: {
+                polyline: true,
+                polygon: true,
+                circle: false,
+                rectangle: true,
+                marker: true
+            },
+            edit: {
+                featureGroup: drawnItems,
+                remove: true
+            }
+        });
+
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function (event) {
+            var layer = event.layer;
+            drawnItems.addLayer(layer);
+        });
+
         // Toggle sidebar function
         function toggleSidebar() {
             var sidebar = document.getElementById('sidebar');
@@ -280,4 +307,3 @@
     </script>
 </body>
 </html>
-  
