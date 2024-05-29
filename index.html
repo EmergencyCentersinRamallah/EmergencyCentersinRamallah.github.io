@@ -50,6 +50,10 @@
             width: 300px;
             height: 100%;
             overflow-y: auto;
+            display: none; /* Initially hide sidebar */
+        }
+        .sidebar.active {
+            display: block; /* Show sidebar when active */
         }
         .sidebar-header {
             border-bottom: 1px solid #ccc;
@@ -78,6 +82,7 @@
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <h3>Categories</h3>
+            <p>Mapping Emergency Centers in Ramallah city</p>
         </div>
         <div class="sidebar-content">
             <input type="checkbox" id="toggleHospitals" checked>
