@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-sidebar/src/L.Control.Sidebar.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
     <style>
         #map { height: 100vh; }
         .legend { 
@@ -107,6 +108,8 @@
             <label for="togglePolice">Police Stations</label><br>
             <input type="checkbox" id="toggleZones" checked>
             <label for="toggleZones">Ramallah Zones</label><br>
+            <label for="destination">Destination:</label><br>
+            <input type="text" id="destination" placeholder="Enter coordinates (lat, lng)"><br>
         </div>
     </div>
     <div class="sidebar-toggle" onclick="toggleSidebar()">Toggle Sidebar</div>
@@ -119,6 +122,7 @@
     <script src="https://unpkg.com/leaflet-sidebar/src/L.Control.Sidebar.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <script>
         var map = L.map('map').setView([31.95, 35.2], 12);
 
@@ -315,6 +319,40 @@
         map.whenReady(function() {
             locateUserControl.start();
         });
+
+        // Adding routing control
+        L.Routing.control({
+            waypoints: [],
+            routeWhileDragging: true,
+            geocoder: L.Control.Geocoder.nominatim()
+        }).addTo(map);
+
+        // Adding a button to start routing
+        var routingButton = L.easyButton('fa-location-arrow', function(btn, map){
+            // Use the geolocation API to get the current position
+            map.locate({setView: true, maxZoom: 16});
+            map.on('locationfound', function(e){
+                var currentLocation = e.latlng;
+
+                // Open a popup to select the destination
+                L.popup()
+                    .setLatLng(currentLocation)
+                    .setContent('<b>Select your destination</b><br><button onclick="setRoutingDestination()">Set Destination</button>')
+                    .openOn(map);
+
+                window.setRoutingDestination = function() {
+                    var destination = L.DomUtil.get('destination').value;
+                    L.Routing.control({
+                        waypoints: [
+                            currentLocation,
+                            L.latLng(destination)
+                        ],
+                        routeWhileDragging: true
+                    }).addTo(map);
+                    map.closePopup();
+                }
+            });
+        }, 'Get Directions').addTo(map);
     </script>
 </body>
 </html>
