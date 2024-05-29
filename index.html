@@ -43,17 +43,6 @@
             cursor: pointer;
             z-index: 1000; /* Ensure the arrow is above other controls */
         }
-        .leaflet-control-compass {
-            position: absolute;
-            top: 50px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/3/3c/Compass_icon_white.svg');
-            background-size: cover;
-            cursor: pointer;
-            z-index: 1000; /* Ensure the compass is above other controls */
-        }
         .sidebar {
             background: white;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -90,7 +79,6 @@
 <body>
     <div id="map"></div>
     <div class="leaflet-control-northarrow" title="North"></div>
-    <div class="leaflet-control-compass" title="Toggle Directions" onclick="toggleDirections()"></div>
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <h3>Categories</h3>
@@ -204,7 +192,7 @@
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<b>Legend</b><br>';
             div.innerHTML += '<i style="background: red;"></i> Hospitals<br>';
-            div.innerHTML += '<i style="background: yellow;"></i> Civil Defense Centers
+            div.innerHTML += '<i style="background: yellow;"></i> Civil Defense Centers<br>';
             div.innerHTML += '<i style="background: green;"></i> Pharmacies<br>';
             div.innerHTML += '<i style="background: blue;"></i> Police Stations<br>';
             div.innerHTML += '<i style="background: orange;"></i> Ramallah Zones<br>';
@@ -239,21 +227,6 @@
             sidebar.classList.toggle('active');
         }
 
-        // Toggle directions function
-        function toggleDirections() {
-            var compass = document.querySelector('.leaflet-control-compass');
-            compass.classList.toggle('active');
-
-            if (compass.classList.contains('active')) {
-                // Show directions feature
-                // Example: You can add a control or overlay for directions here
-                alert('Directions feature activated!');
-            } else {
-                // Hide directions feature
-                alert('Directions feature deactivated!');
-            }
-        }
-
         // Display coordinates on click
         var coordinatesDiv = document.getElementById('coordinates');
 
@@ -263,3 +236,4 @@
     </script>
 </body>
 </html>
+
