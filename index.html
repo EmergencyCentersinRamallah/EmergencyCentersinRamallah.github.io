@@ -306,6 +306,15 @@
                 timeout: 10000
             }
         }).addTo(map);
+
+        // Trigger locate user function on load
+        map.on('load', function() {
+            locateUserControl.start();
+        });
+
+        map.whenReady(function() {
+            locateUserControl.start();
+        });
     </script>
 </body>
 </html>
