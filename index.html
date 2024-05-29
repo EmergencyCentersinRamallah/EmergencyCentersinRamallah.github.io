@@ -168,14 +168,12 @@
         var pharmacyLayer = createGeoJsonLayer('pharmacy.geojson', 'NAME_AR', pointToLayerFunctionFactory('pink'), null);
         var policeLayer = createGeoJsonLayer('Police.geojson', 'NAME_AR_1', pointToLayerFunctionFactory('black'), null);
 
-        // إضافة الطبقات إلى الخريطة
         zonesLayer.addTo(map);
         hospitalLayer.addTo(map);
         civilLayer.addTo(map);
         pharmacyLayer.addTo(map);
         policeLayer.addTo(map);
 
-        // خريطة الطبقات التفصيلية
         var overlayMaps = {
             "Hospitals": hospitalLayer,
             "Civil Defense Centers": civilLayer,
@@ -184,10 +182,8 @@
             "Ramallah Zones": zonesLayer
         };
 
-        // إضافة لوحة التحكم بالطبقات
         L.control.layers(null, overlayMaps).addTo(map);
 
-        // إضافة أداة البحث
         var searchControl = new L.Control.Search({
             layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
             propertyName: 'NAME_AR',
@@ -196,30 +192,38 @@
             }
         });
 
-        // عند العثور على موقع من البحث
         searchControl.on('search:locationfound', function(e) {
             e.layer.openPopup();
         });
 
         map.addControl(searchControl);
 
-        // إنشاء وعرض الأسطورة
         var legend = L.control({position: 'bottomright'});
 
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<b>Legend</b><br>';
-            div.innerHTML += '<i style="background: orange;"></i> Hospitals<br>';
+            div.innerHTML += '<i style="background: red;"></i> Hospitals<br>';
             div.innerHTML += '<i style="background: yellow;"></i> Civil Defense Centers<br>';
-            div.innerHTML += '<i style="background: pink;"></i> Pharmacies<br>';
-            div.innerHTML += '<i style="background: black;"></i> Police Stations<br>';
+            div.innerHTML += '<i style="background: green;"></i> Pharmacies<br>';
+            div.innerHTML += '<i style="background: blue;"></i> Police Stations<br>';
             div.innerHTML += '<i style="background: orange;"></i> Ramallah Zones<br>';
             return div;
         };
 
         legend.addTo(map);
 
-        // إضافة أداة القياس
+        // Adding scale control
+        L.control.scale().addTo(map);
+
+        // Adding print tool
+        var printer = L.easyPrint({
+            title: 'Print map',
+            position: 'topleft',
+            elementsToHide: '.legend, .leaflet-control-search'
+        }).addTo(map);
+
+        // Adding measure tool
         var measureControl = new L.Control.Measure({
             position: 'topleft',
             primaryLengthUnit: 'meters',
@@ -229,20 +233,20 @@
         });
         measureControl.addTo(map);
 
-        // دالة تبديل الشريط الجانبي
+        // Toggle sidebar function
         function toggleSidebar() {
             var sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active');
         }
 
-        // عرض الإحداثيات عند النقر
+        // Display coordinates on click
         var coordinatesDiv = document.getElementById('coordinates');
 
         map.on('click', function(e) {
             coordinatesDiv.innerHTML = '<b>Clicked Coordinates:</b><br>Latitude: ' + e.latlng.lat.toFixed(6) + '<br>Longitude: ' + e.latlng.lng.toFixed(6);
         });
 
-        // إضافة أداة تحديد موقع المستخدم
+        // Adding locate user control
         var locateUserControl = L.control.locate({
             position: 'topleft',
             drawCircle: true,
@@ -273,39 +277,7 @@
                 timeout: 10000
             }
         }).addTo(map);
-
-        // إضافة أداة الرسم على الخريطة (Leaflet.Draw)
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
-
-        var drawControl = new L.Control.Draw({
-            draw: {
-                polyline: false,
-                polygon: false,
-                circle: true,
-                marker: false,
-                rectangle: true
-            },
-            edit: {
-                featureGroup: drawnItems,
-                remove: true
-            }
-        });
-        map.addControl(drawControl);
-
-        // التعامل مع الأشكال المرسومة
-        map.on('draw:created', function (e) {
-            var type = e.layerType,
-                layer = e.layer;
-
-            if (type === 'circle') {
-                // Do something special for circles
-            }
-
-            drawnItems.addLayer(layer);
-        });
-
-        // إضافة مؤثرات الطبقات
-        drawnItems.addTo(map);
     </script>
 </body>
+</html>
+  
