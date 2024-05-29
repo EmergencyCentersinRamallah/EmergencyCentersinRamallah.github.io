@@ -149,6 +149,11 @@
     
     <!-- Locate user control -->
     <div id="locateUser" class="leaflet-control-locate" title="Locate user"></div>
+
+    <!-- Button to show coordinates -->
+    <button id="showCoordinatesButton" style="position: absolute; bottom: 50px; left: 10px; padding: 5px 10px; cursor: pointer; z-index: 1000;">
+        Click to Show Coordinates
+    </button>
     
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -391,6 +396,13 @@
                 }
             });
         }, 'Get Directions').addTo(map);
+
+        // Function to toggle showing coordinates on button click
+        var showCoordinatesButton = document.getElementById('showCoordinatesButton');
+        showCoordinatesButton.addEventListener('click', function() {
+            var coordinatesDiv = document.getElementById('coordinates');
+            coordinatesDiv.style.display = 'block'; // Show coordinates div
+        });
     </script>
 </body>
 </html>
