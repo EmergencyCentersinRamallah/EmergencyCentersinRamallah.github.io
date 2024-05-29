@@ -135,9 +135,6 @@
                     if (feature.properties.phone_Number) {
                         popupContent += '<br>Phone: ' + feature.properties.phone_Number;
                     }
-                    if (feature.geometry && feature.geometry.coordinates) {
-                        popupContent += '<br>Latitude: ' + feature.geometry.coordinates[1].toFixed(6) + '<br>Longitude: ' + feature.geometry.coordinates[0].toFixed(6);
-                    }
                     layer.bindPopup(popupContent);
                 }
             });
