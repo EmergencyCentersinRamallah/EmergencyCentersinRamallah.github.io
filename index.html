@@ -110,6 +110,19 @@
             cursor: pointer;
             z-index: 1000;
         }
+
+        /* Social share button styling */
+        .leaflet-control-socialshare {
+            position: absolute;
+            top: 200px; /* Position it below the other controls */
+            left: 10px;
+            background-color: #fff;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -154,7 +167,12 @@
     <button id="showCoordinatesButton" style="position: absolute; bottom: 50px; left: 10px; padding: 5px 10px; cursor: pointer; z-index: 1000;">
         Click to Show Coordinates
     </button>
-    
+
+    <!-- Social Share button -->
+    <div id="shareButton" class="leaflet-control-socialshare" title="Share Map">
+        Share Map
+    </div>
+
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- Leaflet plugins JavaScript -->
@@ -403,7 +421,32 @@
             var coordinatesDiv = document.getElementById('coordinates');
             coordinatesDiv.style.display = 'block'; // Show coordinates div
         });
+
+        // Social share function
+        function shareMap() {
+            var shareUrl = window.location.href;
+            var text = "Check out this map of emergency centers in Ramallah!";
+            var facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(text)}`;
+            var twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`;
+            var whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + " " + shareUrl)}`;
+
+            var shareOptions = `
+                <div>
+                    <a href="${facebookUrl}" target="_blank">Share on Facebook</a><br>
+                    <a href="${twitterUrl}" target="_blank">Share on Twitter</a><br>
+                    <a href="${whatsappUrl}" target="_blank">Share on WhatsApp</a>
+                </div>
+            `;
+
+            L.popup()
+                .setLatLng(map.getCenter())
+                .setContent(shareOptions)
+                .openOn(map);
+        }
+
+        // Adding click event to the share button
+        var shareButton = document.getElementById('shareButton');
+        shareButton.addEventListener('click', shareMap);
     </script>
 </body>
 </html>
-
