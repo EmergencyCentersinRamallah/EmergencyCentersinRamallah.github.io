@@ -154,6 +154,11 @@
     <button id="showCoordinatesButton" style="position: absolute; bottom: 50px; left: 10px; padding: 5px 10px; cursor: pointer; z-index: 1000;">
         Click to Show Coordinates
     </button>
+
+    <!-- Button to share map -->
+    <button id="shareButton" style="position: absolute; bottom: 90px; left: 10px; padding: 5px 10px; cursor: pointer; z-index: 1000;">
+        Share Map
+    </button>
     
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -213,30 +218,37 @@
         }
 
         var zonesLayer = createGeoJsonLayer('RamallahZones.geojson', 'NAME', null, {color: 'orange', fillOpacity: 0});
-        var hospitalLayer = createGeoJsonLayer('hospital.geojson', 'NAME_AR', pointToLayerFunctionFactory('orange'), null);
-        var civilLayer = createGeoJsonLayer('ciivilld.geojson', 'Name', pointToLayerFunctionFactory('yellow'), null);
-        var pharmacyLayer = createGeoJsonLayer('pharmacy.geojson', 'NAME_AR', pointToLayerFunctionFactory('pink'), null);
-        var policeLayer = createGeoJsonLayer('Police.geojson', 'NAME_AR_1', pointToLayerFunctionFactory('black'), null);
+        var hospitalLayer = createGeoJsonLayer('hospitals.geojson', 'name', pointToLayerFunctionFactory('blue'));
+        var civilDefenseLayer = createGeoJsonLayer('civil_defense.geojson', 'Name', pointToLayerFunctionFactory('red'));
+        var pharmaciesLayer = createGeoJsonLayer('pharmacies.geojson', 'name', pointToLayerFunctionFactory('green'));
+        var policeStationsLayer = createGeoJsonLayer('police.geojson', 'Name', pointToLayerFunctionFactory('purple'));
 
-        zonesLayer.addTo(map);
-        hospitalLayer.addTo(map);
-        civilLayer.addTo(map);
-        pharmacyLayer.addTo(map);
-        policeLayer.addTo(map);
+        var layerControl = L.control.layers(null, {
+            'Hospitals': hospitalLayer,
+            'Civil Defense Centers': civilDefenseLayer,
+            'Pharmacies': pharmaciesLayer,
+            'Police Stations': policeStationsLayer,
+            'Ramallah Zones': zonesLayer
+        }).addTo(map);
 
-        var overlayMaps = {
-            "Hospitals": hospitalLayer,
-            "Civil Defense Centers": civilLayer,
-            "Pharmacies": pharmacyLayer,
-            "Police Stations": policeLayer,
-            "Ramallah Zones": zonesLayer
-        };
+        L.control.scale().addTo(map);
 
-        L.control.layers(null, overlayMaps).addTo(map);
+        L.control.measure({
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        }).addTo(map);
+
+        var northArrow = document.querySelector('.leaflet-control-northarrow');
+        northArrow.addEventListener('click', function() {
+            map.setView([31.95, 35.2], 12);
+        });
 
         var searchControl = new L.Control.Search({
-            layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
-            propertyName: 'NAME_AR',
+            layer: hospitalLayer,
+            propertyName: 'name',
+            marker: false,
             moveToLocation: function(latlng, title, map) {
                 map.setView(latlng, 15);
             }
@@ -248,162 +260,152 @@
 
         map.addControl(searchControl);
 
-        var legend = L.control({position: 'bottomright'});
-
-        legend.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<b>Legend</b><br>';
-            div.innerHTML += '<i style="background: orange;"></i> Hospitals<br>';
-            div.innerHTML += '<i style="background: yellow;"></i> Civil Defense Centers<br>';
-            div.innerHTML += '<i style="background: pink;"></i> Pharmacies<br>';
-            div.innerHTML += '<i style="background: black;"></i> Police Stations<br>';
-            div.innerHTML += '<i style="background: orange;"></i> Ramallah Zones<br>';
-            return div;
-        };
-
-        legend.addTo(map);
-
-        // Adding scale control
-        L.control.scale().addTo(map);
-
-        // Adding print tool
-        var printer = L.easyPrint({
-            title: 'Print map',
-            position: 'topleft',
-            elementsToHide: '.legend, .leaflet-control-search'
-        }).addTo(map);
-
-        // Adding measure tool
-        var measureControl = new L.Control.Measure({
-            position: 'topleft',
-            primaryLengthUnit: 'meters',
-            primaryAreaUnit: 'sqmeters',
-            activeColor: '#FF8300',
-            completedColor: '#FF8300'
-        });
-        measureControl.addTo(map);
-
-        // Adding draw control
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
-
-        var drawControl = new L.Control.Draw({
-            position: 'topleft',
-            draw: {
-                polyline: true,
-                polygon: true,
-                circle: false,
-                rectangle: true,
-                marker: true
-            },
-            edit: {
-                featureGroup: drawnItems,
-                remove: true
-            }
-        });
-
-        map.addControl(drawControl);
-
-        map.on(L.Draw.Event.CREATED, function (event) {
-            var layer = event.layer;
-            drawnItems.addLayer(layer);
-        });
-
-        // Toggle sidebar function
+        var sidebar = document.getElementById('sidebar');
         function toggleSidebar() {
-            var sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active');
         }
 
-        // Display coordinates on click
-        var coordinatesDiv = document.getElementById('coordinates');
-
-        map.on('click', function(e) {
-            coordinatesDiv.innerHTML = '<b>Clicked Coordinates:</b><br>Latitude: ' + e.latlng.lat.toFixed(6) + '<br>Longitude: ' + e.latlng.lng.toFixed(6);
+        document.getElementById('toggleHospitals').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(hospitalLayer);
+            } else {
+                map.removeLayer(hospitalLayer);
+            }
         });
 
-        // Adding locate user control
-        var locateUserControl = L.control.locate({
-            position: 'topleft',
-            drawCircle: true,
-            follow: true,
-            setView: 'untilPan',
-            keepCurrentZoomLevel: true,
-            markerStyle: {
-                weight: 1,
-                opacity: 0.8,
-                fillOpacity: 0.8
-            },
-            circleStyle: {
-                weight: 1,
-                clickable: false
-            },
-            icon: 'fa fa-location-arrow',
-            metric: true,
+        document.getElementById('toggleCivil').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(civilDefenseLayer);
+            } else {
+                map.removeLayer(civilDefenseLayer);
+            }
+        });
+
+        document.getElementById('togglePharmacies').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(pharmaciesLayer);
+            } else {
+                map.removeLayer(pharmaciesLayer);
+            }
+        });
+
+        document.getElementById('togglePolice').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(policeStationsLayer);
+            } else {
+                map.removeLayer(policeStationsLayer);
+            }
+        });
+
+        document.getElementById('toggleZones').addEventListener('change', function() {
+            if (this.checked) {
+                map.addLayer(zonesLayer);
+            } else {
+                map.removeLayer(zonesLayer);
+            }
+        });
+
+        var coordinatesDiv = document.getElementById('coordinates');
+        map.on('mousemove', function(e) {
+            coordinatesDiv.innerHTML = 'Latitude: ' + e.latlng.lat.toFixed(6) + ', Longitude: ' + e.latlng.lng.toFixed(6);
+        });
+
+        var locateControl = L.control.locate({
+            position: 'topright',
+            flyTo: true,
             strings: {
-                title: "Show me where I am",
-                popup: "You are within {distance} {unit} from this point",
-                outsideMapBoundsMsg: "You seem located outside the boundaries of the map"
-            },
-            locateOptions: {
-                maxZoom: 18,
-                watch: true,
-                enableHighAccuracy: true,
-                maximumAge: 10000,
-                timeout: 10000
+                title: "Show me where I am"
             }
         }).addTo(map);
 
-        // Trigger locate user function on load
-        map.on('load', function() {
-            locateUserControl.start();
+        document.getElementById('locateUser').addEventListener('click', function() {
+            locateControl.start();
         });
 
-        map.whenReady(function() {
-            locateUserControl.start();
-        });
-
-        // Adding routing control
-        var routingControl = L.Routing.control({
-            waypoints: [],
-            routeWhileDragging: true,
-            geocoder: L.Control.Geocoder.nominatim()
-        }).addTo(map);
-
-        // Adding a button to start routing
-        var routingButton = L.easyButton('fa-location-arrow', function(btn, map){
-            // Use the geolocation API to get the current position
-            map.locate({setView: true, maxZoom: 16});
-            map.on('locationfound', function(e){
-                var currentLocation = e.latlng;
-
-                // Open a popup to select the destination
-                L.popup()
-                    .setLatLng(currentLocation)
-                    .setContent('<b>Select your destination</b><br><button onclick="setRoutingDestination()">Set Destination</button>')
-                    .openOn(map);
-
-                window.setRoutingDestination = function() {
-                    var destination = L.DomUtil.get('destination').value;
-                    L.Routing.control({
-                        waypoints: [
-                            currentLocation,
-                            L.latLng(destination)
-                        ],
-                        routeWhileDragging: true
-                    }).addTo(map);
-                    map.closePopup();
-                }
+        document.getElementById('showCoordinatesButton').addEventListener('click', function() {
+            map.on('click', function(e) {
+                alert('Latitude: ' + e.latlng.lat + '\nLongitude: ' + e.latlng.lng);
             });
-        }, 'Get Directions').addTo(map);
+        });
 
-        // Function to toggle showing coordinates on button click
-        var showCoordinatesButton = document.getElementById('showCoordinatesButton');
-        showCoordinatesButton.addEventListener('click', function() {
-            var coordinatesDiv = document.getElementById('coordinates');
-            coordinatesDiv.style.display = 'block'; // Show coordinates div
+        var shareButton = document.getElementById('shareButton');
+        shareButton.addEventListener('click', function() {
+            var center = map.getCenter();
+            var zoom = map.getZoom();
+            var shareURL = `${window.location.origin}${window.location.pathname}?lat=${center.lat}&lng=${center.lng}&zoom=${zoom}`;
+            
+            navigator.clipboard.writeText(shareURL).then(function() {
+                alert('Map link copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        });
+
+        function updateMapViewFromURL() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var lat = urlParams.get('lat');
+            var lng = urlParams.get('lng');
+            var zoom = urlParams.get('zoom');
+            
+            if (lat && lng && zoom) {
+                map.setView([lat, lng], parseInt(zoom));
+            }
+        }
+
+        updateMapViewFromURL();
+
+        function addRoutingControl(lat, lng) {
+            if (window.routingControl) {
+                map.removeControl(window.routingControl);
+            }
+
+            window.routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(31.95, 35.2),
+                    L.latLng(lat, lng)
+                ],
+                routeWhileDragging: true,
+                createMarker: function(i, waypoint, n) {
+                    var markerOptions = {
+                        draggable: true
+                    };
+                    if (i === 0) {
+                        markerOptions.icon = L.icon({
+                            iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
+                            shadowUrl: 'https://leafletjs.com/examples/custom-icons/leaf-shadow.png',
+                            iconSize: [38, 95],
+                            shadowSize: [50, 64],
+                            iconAnchor: [22, 94],
+                            shadowAnchor: [4, 62],
+                            popupAnchor: [-3, -76]
+                        });
+                    } else if (i === n - 1) {
+                        markerOptions.icon = L.icon({
+                            iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png',
+                            shadowUrl: 'https://leafletjs.com/examples/custom-icons/leaf-shadow.png',
+                            iconSize: [38, 95],
+                            shadowSize: [50, 64],
+                            iconAnchor: [22, 94],
+                            shadowAnchor: [4, 62],
+                            popupAnchor: [-3, -76]
+                        });
+                    }
+                    return L.marker(waypoint.latLng, markerOptions).bindPopup('Point ' + (i + 1));
+                }
+            }).addTo(map);
+        }
+
+        var destinationInput = document.getElementById('destination');
+        destinationInput.addEventListener('change', function() {
+            var coordinates = destinationInput.value.split(',');
+            if (coordinates.length === 2) {
+                var lat = parseFloat(coordinates[0]);
+                var lng = parseFloat(coordinates[1]);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    addRoutingControl(lat, lng);
+                }
+            }
         });
     </script>
 </body>
 </html>
-
