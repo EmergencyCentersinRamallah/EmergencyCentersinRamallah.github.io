@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.6.0/leaflet.fullscreen.css" />
     <!-- Custom CSS -->
     <style>
         /* Map container styling */
@@ -185,7 +184,6 @@
     <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <script src="https://unpkg.com/leaflet-control-share/dist/leaflet-control-share.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.6.0/Leaflet.fullscreen.min.js"></script>
     <!-- Custom JavaScript -->
     <script>
         var map = L.map('map').setView([31.95, 35.2], 12);
@@ -199,137 +197,156 @@
                 pointToLayer: pointToLayerFunction,
                 style: style,
                 onEachFeature: function (feature, layer) {
-                    if (feature.properties && feature.properties[propertyName]) {
-                        layer.bindPopup(feature.properties[propertyName]);
+                    var popupContent = '<b>' + (feature.properties[propertyName] || "No name") + '</b>';
+                    if (feature.properties.phone_Number) {
+                        popupContent += '<br>Phone: ' + feature.properties.phone_Number;
                     }
+                    layer.bindPopup(popupContent);
                 }
             });
 
             fetch(url)
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (data) {
+                .then(response => response.json())
+                .then(data => {
                     layer.addData(data);
-                });
+                    if (url === 'RamallahZones.geojson') {
+                        map.fitBounds(layer.getBounds());
+                    }
+                })
+                .catch(error => console.error('Error loading GeoJSON:', error));
 
             return layer;
         }
 
-        var hospitalsLayer = createGeoJsonLayer(
-            'https://raw.githubusercontent.com/hananbh/ramallah/main/hospitals.geojson',
-            'Name',
-            function (feature, latlng) {
-                return L.marker(latlng, { icon: L.icon({ iconUrl: 'https://example.com/hospital.png', iconSize: [25, 25] }) });
-            }
-        );
+        function pointToLayerFunctionFactory(color) {
+            return function (feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 8,
+                    fillColor: color,
+                    color: color,
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
+            };
+        }
 
-        var civilDefenseLayer = createGeoJsonLayer(
-            'https://raw.githubusercontent.com/hananbh/ramallah/main/civilDefense.geojson',
-            'Civil Defense Centers',
-            function (feature, latlng) {
-                return L.marker(latlng, { icon: L.icon({ iconUrl: 'https://example.com/civil.png', iconSize: [25, 25] }) });
-            }
-        );
+        var zonesLayer = createGeoJsonLayer('RamallahZones.geojson', 'NAME', null, {color: 'orange', fillOpacity: 0});
+        var hospitalLayer = createGeoJsonLayer('hospital.geojson', 'NAME_AR', pointToLayerFunctionFactory('orange'), null);
+        var civilLayer = createGeoJsonLayer('ciivilld.geojson', 'Name', pointToLayerFunctionFactory('yellow'), null);
+        var pharmacyLayer = createGeoJsonLayer('pharmacy.geojson', 'NAME_AR', pointToLayerFunctionFactory('pink'), null);
+        var policeLayer = createGeoJsonLayer('Police.geojson', 'NAME_AR_1', pointToLayerFunctionFactory('black'), null);
 
-        var pharmaciesLayer = createGeoJsonLayer(
-            'https://raw.githubusercontent.com/hananbh/ramallah/main/pharmacies.geojson',
-            'Name',
-            function (feature, latlng) {
-                return L.marker(latlng, { icon: L.icon({ iconUrl: 'https://example.com/pharmacy.png', iconSize: [25, 25] }) });
-            }
-        );
+        zonesLayer.addTo(map);
+        hospitalLayer.addTo(map);
+        civilLayer.addTo(map);
+        pharmacyLayer.addTo(map);
+        policeLayer.addTo(map);
 
-        var policeStationsLayer = createGeoJsonLayer(
-            'https://raw.githubusercontent.com/hananbh/ramallah/main/policeStations.geojson',
-            'Police Stations',
-            function (feature, latlng) {
-                return L.marker(latlng, { icon: L.icon({ iconUrl: 'https://example.com/police.png', iconSize: [25, 25] }) });
-            }
-        );
+        var overlayMaps = {
+            "Hospitals": hospitalLayer,
+            "Civil Defense Centers": civilLayer,
+            "Pharmacies": pharmacyLayer,
+            "Police Stations": policeLayer,
+            "Ramallah Zones": zonesLayer
+        };
 
-        var zonesLayer = createGeoJsonLayer(
-            'https://raw.githubusercontent.com/hananbh/ramallah/main/ramallahZones.geojson',
-            'Zone',
-            function (feature, latlng) {
-                return L.marker(latlng);
-            },
-            {
-                color: 'blue',
-                weight: 2,
-                fillOpacity: 0.2
-            }
-        );
-
-        var measureControl = new L.Control.Measure({
-            primaryLengthUnit: 'meters',
-            primaryAreaUnit: 'sqmeters',
-            activeColor: '#db4a29',
-            completedColor: '#9b2d14'
-        });
-        measureControl.addTo(map);
+        L.control.layers(null, overlayMaps).addTo(map);
 
         var searchControl = new L.Control.Search({
-            layer: L.layerGroup([hospitalsLayer, civilDefenseLayer, pharmaciesLayer, policeStationsLayer]),
-            propertyName: 'Name',
-            marker: false,
-            moveToLocation: function (latlng, title, map) {
-                map.setView(latlng, 18);
+            layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
+            propertyName: 'NAME_AR',
+            moveToLocation: function(latlng, title, map) {
+                map.setView(latlng, 15);
             }
+        });
+
+        searchControl.on('search:locationfound', function(e) {
+            e.layer.openPopup();
         });
 
         map.addControl(searchControl);
 
-        var sidebar = L.control.sidebar('sidebar', {
-            position: 'left'
+        var legend = L.control({position: 'bottomright'});
+
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<b>Legend</b><br>';
+            div.innerHTML += '<i style="background: orange;"></i> Hospitals<br>';
+            div.innerHTML += '<i style="background: yellow;"></i> Civil Defense Centers<br>';
+            div.innerHTML += '<i style="background: pink;"></i> Pharmacies<br>';
+            div.innerHTML += '<i style="background: black;"></i> Police Stations<br>';
+            div.innerHTML += '<i style="background: orange;"></i> Ramallah Zones<br>';
+            return div;
+        };
+
+        legend.addTo(map);
+
+        // Adding scale control
+        L.control.scale().addTo(map);
+
+        // Adding print tool
+        var printer = L.easyPrint({
+            title: 'Print map',
+            position: 'topleft',
+            elementsToHide: '.legend, .leaflet-control-search'
         }).addTo(map);
 
-        function toggleLayer(layer, checkboxId) {
-            var checkbox = document.getElementById(checkboxId);
-            if (checkbox.checked) {
-                map.addLayer(layer);
-            } else {
-                map.removeLayer(layer);
+        // Adding measure tool
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            primaryAreaUnit: 'sqmeters',
+            activeColor: '#FF8300',
+            completedColor: '#FF8300'
+        });
+        measureControl.addTo(map);
+
+        // Adding draw control
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        var drawControl = new L.Control.Draw({
+            position: 'topleft',
+            draw: {
+                polyline: true,
+                polygon: true,
+                circle: false,
+                rectangle: true,
+                marker: true
+            },
+            edit: {
+                featureGroup: drawnItems,
+                remove: true
             }
-        }
-
-        document.getElementById('toggleHospitals').addEventListener('change', function () {
-            toggleLayer(hospitalsLayer, 'toggleHospitals');
         });
 
-        document.getElementById('toggleCivil').addEventListener('change', function () {
-            toggleLayer(civilDefenseLayer, 'toggleCivil');
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function (event) {
+            var layer = event.layer;
+            drawnItems.addLayer(layer);
         });
 
-        document.getElementById('togglePharmacies').addEventListener('change', function () {
-            toggleLayer(pharmaciesLayer, 'togglePharmacies');
-        });
-
-        document.getElementById('togglePolice').addEventListener('change', function () {
-            toggleLayer(policeStationsLayer, 'togglePolice');
-        });
-
-        document.getElementById('toggleZones').addEventListener('change', function () {
-            toggleLayer(zonesLayer, 'toggleZones');
-        });
-
+        // Toggle sidebar function
         function toggleSidebar() {
             var sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active');
         }
 
-        document.getElementById('showCoordinatesButton').addEventListener('click', function () {
-            map.on('click', function (e) {
-                var coordinatesDiv = document.getElementById('coordinates');
-                coordinatesDiv.innerHTML = 'Coordinates: ' + e.latlng.lat + ', ' + e.latlng.lng;
-            });
+        // Display coordinates on click
+        var coordinatesDiv = document.getElementById('coordinates');
+
+        map.on('click', function(e) {
+            coordinatesDiv.innerHTML = '<b>Clicked Coordinates:</b><br>Latitude: ' + e.latlng.lat.toFixed(6) + '<br>Longitude: ' + e.latlng.lng.toFixed(6);
         });
 
-        var locateControl = L.control.locate({
-            position: 'topright',
+        // Adding locate user control
+        var locateUserControl = L.control.locate({
+            position: 'topleft',
             drawCircle: true,
             follow: true,
-            setView: true,
+            setView: 'untilPan',
             keepCurrentZoomLevel: true,
             markerStyle: {
                 weight: 1,
@@ -356,27 +373,69 @@
             }
         }).addTo(map);
 
-        var northArrow = document.querySelector('.leaflet-control-northarrow');
-        northArrow.addEventListener('click', function () {
-            map.setBearing(0);
+        // Trigger locate user function on load
+        map.on('load', function() {
+            locateUserControl.start();
         });
 
-        function shareMap() {
-            var center = map.getCenter();
-            var zoom = map.getZoom();
-            var url = `${window.location.origin}${window.location.pathname}?lat=${center.lat}&lng=${center.lng}&zoom=${zoom}`;
-            prompt("Copy this URL to share the map view:", url);
-        }
+        map.whenReady(function() {
+            locateUserControl.start();
+        });
 
-        L.control.fullscreen({
-            position: 'topright',
-            title: 'Full Screen',
-            titleCancel: 'Exit Full Screen',
-            content: null,
-            forceSeparateButton: true,
-            forcePseudoFullscreen: true,
-            fullscreenElement: false
+        // Adding routing control
+        var routingControl = L.Routing.control({
+            waypoints: [],
+            routeWhileDragging: true,
+            geocoder: L.Control.Geocoder.nominatim()
         }).addTo(map);
+
+        // Adding a button to start routing
+        var routingButton = L.easyButton('fa-location-arrow', function(btn, map){
+            // Use the geolocation API to get the current position
+            map.locate({setView: true, maxZoom: 16});
+            map.on('locationfound', function(e){
+                var currentLocation = e.latlng;
+
+                // Open a popup to select the destination
+                L.popup()
+                    .setLatLng(currentLocation)
+                    .setContent('<b>Select your destination</b><br><button onclick="setRoutingDestination()">Set Destination</button>')
+                    .openOn(map);
+
+                window.setRoutingDestination = function() {
+                    var destination = L.DomUtil.get('destination').value;
+                    L.Routing.control({
+                        waypoints: [
+                            currentLocation,
+                            L.latLng(destination)
+                        ],
+                        routeWhileDragging: true
+                    }).addTo(map);
+                    map.closePopup();
+                }
+            });
+        }, 'Get Directions').addTo(map);
+
+        // Function to toggle showing coordinates on button click
+        var showCoordinatesButton = document.getElementById('showCoordinatesButton');
+        showCoordinatesButton.addEventListener('click', function() {
+            var coordinatesDiv = document.getElementById('coordinates');
+            coordinatesDiv.style.display = 'block'; // Show coordinates div
+        });
+
+        // Adding share control
+        var shareControl = L.control.share({
+            position: 'bottomleft',
+            style: 'bar',
+            permalink: '',
+            facebook: true,
+            twitter: true
+        });
+        shareControl.addTo(map);
+        
+        function shareMap() {
+            shareControl.open();
+        }
     </script>
 </body>
 </html>
