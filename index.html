@@ -436,6 +436,16 @@
         function shareMap() {
             shareControl.open();
         }
+        
+        L.control.fullscreen({
+            position: 'topright',
+            title: 'Full Screen',
+            titleCancel: 'Exit Full Screen',
+            content: null,
+            forceSeparateButton: true,
+            forcePseudoFullscreen: true,
+            fullscreenElement: false
+        }).addTo(map);
     </script>
 </body>
 </html>
