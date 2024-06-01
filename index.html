@@ -173,19 +173,11 @@
         </div>
     </div>
     
-    <!-- Sidebar toggle button -->
-    <div class="sidebar-toggle" onclick="toggleSidebar()">Toggle Sidebar</div>
-    
     <!-- Coordinates display -->
     <div id="coordinates" style="position: absolute; bottom: 10px; left: 10px;"></div>
     
     <!-- Locate user control -->
     <div id="locateUser" class="leaflet-control-locate" title="Locate user"></div>
-
-    <!-- Button to show coordinates -->
-    <button id="showCoordinatesButton" style="position: absolute; bottom: 50px; left: 10px; padding: 5px 10px; cursor: pointer; z-index: 1000;">
-        Click to Show Coordinates
-    </button>
     
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -193,7 +185,6 @@
     <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.min.js"></script>
     <script src="https://rawgit.com/rowanwins/leaflet-easyPrint/gh-pages/dist/bundle.js"></script>
     <script src="https://unpkg.com/leaflet-measure/dist/leaflet-measure.js"></script>
-    <script src="https://unpkg.com/leaflet-sidebar/src/L.Control.Sidebar.js"></script>
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
@@ -339,19 +330,6 @@
         map.on(L.Draw.Event.CREATED, function (event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
-        });
-
-        // Toggle sidebar function
-        function toggleSidebar() {
-            var sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        }
-
-        // Display coordinates on click
-        var coordinatesDiv = document.getElementById('coordinates');
-
-        map.on('click', function(e) {
-            coordinatesDiv.innerHTML = '<b>Clicked Coordinates:</b><br>Latitude: ' + e.latlng.lat.toFixed(6) + '<br>Longitude: ' + e.latlng.lng.toFixed(6);
         });
 
         // Adding locate user control
