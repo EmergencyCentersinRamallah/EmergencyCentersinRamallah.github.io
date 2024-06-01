@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+   <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapping Emergency Centers in Ramallah city</title>
     <!-- Leaflet CSS -->
@@ -13,42 +13,12 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css" />
     <!-- Custom CSS -->
     <style>
         /* Map container styling */
         #map { 
             height: 100vh; /* Full viewport height */
         }
-        .header {
-            background-color: #007BFF; /* لون أزرق */
-            color: white;
-            padding:40px;
-            display: flex;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            
-        }
-        .header img {
-            max-height: 50px; /* حجم الصورة */
-            margin-right: 40px;
-        }
-         .header h1 {
-            margin: 0;
-        }
-        .content {
-            padding-top: 60px; /* إضافة مساحة كافية أعلى المحتوى لتجنب التداخل مع الهيدر الثابت */
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <img src="https://www.marefa.org/w/images/thumb/1/16/Birzeit_University_logo.svg/600px-Birzeit_University_logo.svg.png" alt="Birzeit University Logo">
-        <h1>Emergency Centers in Ramallah</h1>
-    </div>
 
         /* Legend styling */
         .legend { 
@@ -140,22 +110,41 @@
             cursor: pointer;
             z-index: 1000;
         }
-
-        /* Share control styling */
-        .leaflet-control-share {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background-color: #fff;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background-color: #007BFF; /* لون أزرق */
+            color: white;
+            padding:40px;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
             z-index: 1000;
+            
+        }
+        .header img {
+            max-height: 40px; /* حجم الصورة */
+            margin-right: 100px;
+        }
+         .header h1 {
+            margin: 0;
+        }
+        .content {
+            padding-top: 120px; /* إضافة مساحة كافية أعلى المحتوى لتجنب التداخل مع الهيدر الثابت */
         }
     </style>
+    
 </head>
-<body>
+    <body>
+        <div class="header">
+        <img src="https://www.marefa.org/w/images/thumb/1/16/Birzeit_University_logo.svg/600px-Birzeit_University_logo.svg.png" alt="Birzeit University Logo">
+        <h1>Mapping Emergency Centers in Ramallah city</h1>
+    </div>
+    <div class="content">
     <!-- Map container -->
     <div id="map"></div>
     
@@ -193,11 +182,6 @@
     <!-- Locate user control -->
     <div id="locateUser" class="leaflet-control-locate" title="Locate user"></div>
 
-    <!-- Share control -->
-    <div class="leaflet-control-share" title="Share map" onclick="shareMap()">
-        <img src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/share-icon.svg" alt="Share">
-    </div>
-
     <!-- Button to show coordinates -->
     <button id="showCoordinatesButton" style="position: absolute; bottom: 50px; left: 10px; padding: 5px 10px; cursor: pointer; z-index: 1000;">
         Click to Show Coordinates
@@ -213,13 +197,6 @@
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-    <script src="https://unpkg.com/leaflet-control-share/dist/leaflet-control-share.js"></script>
-    <script src="https://unpkg.com/leaflet-control-share/dist/leaflet-control-share.js"></script>
-    <script src="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js"></script>
-    <!-- Leaflet Fullscreen CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css" />
-<!-- Leaflet Fullscreen JavaScript -->
-<script src="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js"></script>
     <!-- Custom JavaScript -->
     <script>
         var map = L.map('map').setView([31.95, 35.2], 12);
@@ -458,25 +435,7 @@
             var coordinatesDiv = document.getElementById('coordinates');
             coordinatesDiv.style.display = 'block'; // Show coordinates div
         });
-
-        // Adding share control
-        var shareControl = L.control.share({
-            position: 'bottomleft',
-            style: 'bar',
-            permalink: '',
-            facebook: true,
-            twitter: true
-        });
-        shareControl.addTo(map);
-        
-          function shareMap() {
-    var url = window.location.href;
-    prompt('Share this map by copying the link below:', url);
-}
-        // Fullscreen control
-        L.control.fullscreen().addTo(map);
-        
-        // Add other controls and functionalities here...
     </script>
+</div>
 </body>
 </html>
