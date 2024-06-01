@@ -185,6 +185,10 @@
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
     <script src="https://unpkg.com/leaflet-control-share/dist/leaflet-control-share.js"></script>
     <script src="https://unpkg.com/leaflet-control-share/dist/leaflet-control-share.js"></script>
+    <!-- Leaflet Fullscreen CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css" />
+<!-- Leaflet Fullscreen JavaScript -->
+<script src="https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js"></script>
     <!-- Custom JavaScript -->
     <script>
         var map = L.map('map').setView([31.95, 35.2], 12);
@@ -438,6 +442,8 @@
     var url = window.location.href;
     prompt('Share this map by copying the link below:', url);
 }
+        // Add fullscreen control
+        map.addControl(new L.Control.FullScreen());
     </script>
 </body>
 </html>
