@@ -202,8 +202,8 @@
                 style: style,
                 onEachFeature: function (feature, layer) {
                     var popupContent = '<b>' + (feature.properties[propertyName] || "No name") + '</b>';
-                    if (feature.properties.phone_Number) {
-                        popupContent += '<br>Phone: ' + feature.properties.phone_Number;
+                    if (feature.properties.number_pho) {
+                        popupContent += '<br>Phone: ' + feature.properties.number_pho;
                     }
                     layer.bindPopup(popupContent);
                 }
