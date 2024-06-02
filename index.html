@@ -418,12 +418,20 @@
             coordinatesDiv.style.display = 'block'; // Show coordinates div
         });
 
-        // Adding Leaflet Social sharing control
-        var social = L.control.social({
-            networks: ['facebook', 'twitter', 'linkedin'], // Define which networks you want to include
-            url: 'http://yourwebsite.com', // URL to be shared, change this to your desired URL
-            title: 'Mapping Emergency Centers in Ramallah city' // Title for the shared content
-        }).addTo(map);
+        // Adding share control
+        var shareControl = L.control.share({
+            position: 'bottomleft',
+            style: 'bar',
+            permalink: '',
+            facebook: true,
+            twitter: true
+        });
+        shareControl.addTo(map);
+        
+          function shareMap() {
+    var url = window.location.href;
+    prompt('Share this map by copying the link below:', url);
+}
     </script>
 </div>
 </body>
