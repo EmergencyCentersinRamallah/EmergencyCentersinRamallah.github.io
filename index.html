@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapping Emergency Centers in Ramallah city</title>
     <!-- Leaflet CSS -->
@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <!-- Leaflet Social CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-social/leaflet-social.min.css" />
     <!-- Custom CSS -->
     <style>
         /* Map container styling */
@@ -139,8 +141,8 @@
     </style>
     
 </head>
-    <body>
-        <div class="header">
+<body>
+    <div class="header">
         <img src="https://www.marefa.org/w/images/thumb/1/16/Birzeit_University_logo.svg/600px-Birzeit_University_logo.svg.png" alt="Birzeit University Logo">
         <h1>Mapping Emergency Centers in Ramallah city</h1>
     </div>
@@ -188,6 +190,8 @@
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <!-- Leaflet Social JavaScript -->
+    <script src="https://unpkg.com/leaflet-social/leaflet-social.min.js"></script>
     <!-- Custom JavaScript -->
     <script>
         var map = L.map('map').setView([31.95, 35.2], 12);
@@ -413,6 +417,13 @@
             var coordinatesDiv = document.getElementById('coordinates');
             coordinatesDiv.style.display = 'block'; // Show coordinates div
         });
+
+        // Adding Leaflet Social sharing control
+        var social = L.control.social({
+            networks: ['facebook', 'twitter', 'linkedin'], // Define which networks you want to include
+            url: 'http://yourwebsite.com', // URL to be shared, change this to your desired URL
+            title: 'Mapping Emergency Centers in Ramallah city' // Title for the shared content
+        }).addTo(map);
     </script>
 </div>
 </body>
