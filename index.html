@@ -271,20 +271,20 @@
 
         map.addControl(searchControl);
 
-        var legend = L.control({position: 'bottomright'});
+       var legend = L.control({position: 'bottomright'});
 
-        legend.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<b>Legend</b><br>';
-            div.innerHTML += '<i style="background: red;"></i> Hospitals<br>';
-            div.innerHTML += '<i style="background: yellow;"></i> Civil Defense Centers<br>';
-            div.innerHTML += '<i style="background: green;"></i> Pharmacies<br>';
-            div.innerHTML += '<i style="background: blue;"></i> Police Stations<br>';
-            div.innerHTML += '<i style="background: orange;"></i> Ramallah Zones<br>';
-            return div;
-        };
+legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML += '<b>Legend</b><br>';
+    div.innerHTML += '<i style="background: red; width: 18px; height: 18px; display: inline-block;"></i> Hospitals<br>';
+    div.innerHTML += '<i style="background: yellow; width: 18px; height: 18px; display: inline-block;"></i> Civil Defense Centers<br>';
+    div.innerHTML += '<i style="background: green; width: 18px; height: 18px; display: inline-block;"></i> Pharmacies<br>';
+    div.innerHTML += '<i style="background: blue; width: 18px; height: 18px; display: inline-block;"></i> Police Stations<br>';
+    div.innerHTML += '<i style="background: orange; width: 18px; height: 18px; display: inline-block;"></i> Ramallah Zones<br>';
+    return div;
+};
 
-        legend.addTo(map);
+legend.addTo(map);
 
         // Adding scale control
         L.control.scale().addTo(map);
