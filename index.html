@@ -208,15 +208,7 @@
                     layer.bindPopup(popupContent);
                 }
             });
-            onEachFeature: function (feature, layer) {
-                    var popupContent = '<b>' + (feature.properties[propertyName] || "No name") + '</b>';
-                    if (feature.properties.Phone_Num) {
-                        popupContent += '<br>Phone: ' + feature.properties.Phone_Num;
-                    }
-                    layer.bindPopup(popupContent);
-                }
-            });
-
+           
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
