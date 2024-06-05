@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-easybutton/2.4.0/easy-button.js"></script>
-    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=6660ab4d4935230019e1ce53&product=inline-share-buttons&source=platform" async="async"></script>&product=inline-share-buttons' async='async'></script>
+    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=6660ab4d4935230019e1ce53&product=inline-share-buttons&source=platform' async='async'></script>
     <style>
         #map { height: 100vh; }
         .legend { 
@@ -25,17 +25,24 @@
             border-radius: 5px;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
-        .sharethis-inline-share-buttons {
+        .sharethis-inline-share-buttons-container {
             position: absolute;
             top: 40px;
             left: 0;
             display: none;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
-    <div class="sharethis-inline-share-buttons"></div>
+    <div class="sharethis-inline-share-buttons-container">
+        <div class="sharethis-inline-share-buttons"></div>
+    </div>
     <script>
         var map = L.map('map').setView([31.95, 35.2], 13);
 
@@ -130,11 +137,11 @@
         legend.addTo(map);
 
         var shareButton = L.easyButton('<i class="fa fa-share-alt"></i>', function(btn, map){
-            var shareButtons = document.querySelector('.sharethis-inline-share-buttons');
-            if (shareButtons.style.display === 'block') {
-                shareButtons.style.display = 'none';
+            var shareButtonsContainer = document.querySelector('.sharethis-inline-share-buttons-container');
+            if (shareButtonsContainer.style.display === 'block') {
+                shareButtonsContainer.style.display = 'none';
             } else {
-                shareButtons.style.display = 'block';
+                shareButtonsContainer.style.display = 'block';
             }
         });
 
