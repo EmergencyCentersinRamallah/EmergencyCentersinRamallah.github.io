@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-easybutton/2.4.0/easy-button.js"></script>
-    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=YOUR_PROPERTY_ID&product=inline-share-buttons' async='async'></script>
+    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=6660ab4d4935230019e1ce53&product=inline-share-buttons&source=platform" async="async"></script>&product=inline-share-buttons' async='async'></script>
     <style>
         #map { height: 100vh; }
         .legend { 
@@ -24,6 +24,12 @@
         .leaflet-control-search {
             border-radius: 5px;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        .sharethis-inline-share-buttons {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            display: none;
         }
     </style>
 </head>
@@ -135,11 +141,6 @@
         shareButton.addTo(map);
 
         document.querySelector('.leaflet-control .easy-button-container').style.position = 'relative';
-        var shareButtons = document.querySelector('.sharethis-inline-share-buttons');
-        shareButtons.style.position = 'absolute';
-        shareButtons.style.top = '40px';  // ضعه أسفل الزر مباشرةً
-        shareButtons.style.left = '0px';
-        shareButtons.style.display = 'none';  // ابدأ بإخفائه
     </script>
 </body>
 </html>
