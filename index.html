@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-easybutton/2.4.0/easy-button.css" />
     <!-- Custom CSS -->
     <style>
         /* Map container styling */
@@ -36,13 +35,7 @@
             border-radius: 5px;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
-        .sharethis-inline-share-buttons {
-            position: absolute;
-            top: 40px;
-            left: 0;
-            display: none;
-        }
-        
+
         /* Scale control styling */
         .leaflet-control-scale {
             position: absolute;
@@ -115,7 +108,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             cursor: pointer;
-            z-index: 1000;
+            z-index: -1;
         }
         body {
             margin: 0;
@@ -154,11 +147,10 @@
     <div class="content">
     <!-- Map container -->
     <div id="map"></div>
-    <div class="sharethis-inline-share-buttons"></div>
     
     <!-- North arrow control -->
     <div class="leaflet-control-northarrow" title="North"></div>
-       
+    
     <!-- Sidebar -->
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
@@ -196,8 +188,6 @@
     <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-easybutton/2.4.0/easy-button.js"></script>
-    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=6660ab4d4935230019e1ce53&product=inline-share-buttons' async='async'></script>
     <!-- Custom JavaScript -->
     <script>
         var map = L.map('map').setView([31.95, 35.2], 12);
@@ -351,17 +341,6 @@ legend.addTo(map);
             var layer = event.layer;
             drawnItems.addLayer(layer);
         });
-        
-         var shareButton = L.easyButton('<i class="fa fa-share-alt"></i>', function(btn, map){
-            var shareButtons = document.querySelector('.sharethis-inline-share-buttons');
-            if (shareButtons.style.display === 'block') {
-                shareButtons.style.display = 'none';
-            } else {
-                shareButtons.style.display = 'block';
-            }
-        });
-
-        shareButton.addTo(map);
 
         // Adding locate user control
         var locateUserControl = L.control.locate({
