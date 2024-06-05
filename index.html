@@ -102,9 +102,12 @@
 
         searchControl.on('search:locationfound', function(e) {
             e.layer.openPopup();
-            var routingControl = L.Routing.control({
+            if (map.routingControl) {
+                map.removeControl(map.routingControl);
+            }
+            map.routingControl = L.Routing.control({
                 waypoints: [
-                    L.latLng(31.95, 35.2),
+                    L.latLng(31.95, 35.2),  // Starting point, you can customize this
                     e.latlng
                 ],
                 routeWhileDragging: true
