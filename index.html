@@ -297,6 +297,14 @@ legend.onAdd = function (map) {
 };
 
 legend.addTo(map);
+       
+         L.control.fullscreen({
+            position: 'topleft',
+            title: 'Full Screen',
+            titleCancel: 'Exit Full Screen',
+            forceSeparateButton: true
+        }).addTo(map);
+
 
         // Adding scale control
         L.control.scale().addTo(map);
@@ -418,14 +426,7 @@ legend.addTo(map);
                 }
             });
         }, 'Get Directions').addTo(map);
-
-        L.control.fullscreen({
-            position: 'topleft',
-            title: 'Full Screen',
-            titleCancel: 'Exit Full Screen',
-            forceSeparateButton: true
-        }).addTo(map);
-
+       
         // Function to toggle showing coordinates on button click
         var showCoordinatesButton = document.getElementById('showCoordinatesButton');
         showCoordinatesButton.addEventListener('click', function() {
