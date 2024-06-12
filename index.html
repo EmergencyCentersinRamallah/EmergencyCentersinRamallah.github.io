@@ -196,22 +196,8 @@
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 20
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            });
+        }).addTo(map);
 
-            var satelliteMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="https://opentopomap.org/about#verwendung">OpenTopoMap</a>'
-            });
-
-            var baseMaps = {
-                "Street Map": streetMap,
-                "Satellite Map": satelliteMap
-            };
-
-            L.control.layers(baseMaps).addTo(map);
-            streetMap.addTo(map); // Set the default base map
-      
         function createGeoJsonLayer(url, propertyName, pointToLayerFunction, style) {
             var layer = L.geoJson(null, {
                 pointToLayer: pointToLayerFunction,
