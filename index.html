@@ -290,10 +290,6 @@
     propertyName: function(feature) {
         return feature.properties.NAME_AR || feature.properties.Name_AR;
     },
-    textPlaceholder: 'Search...',
-    moveToLocation: function(latlng, title, map) {
-        map.setView(latlng, 15); // Zoom level when searching
-    },
         });
 
         searchControl.on('search:locationfound', function(e) {
