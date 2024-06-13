@@ -285,11 +285,12 @@
 
         L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-       var searchControl = new L.Control.Search({
-    layer: L.layerGroup([hospitalsLayer, civilLayer, pharmaciesLayer, policeLayer, zonesLayer]),
-    propertyName: function(feature) {
-        return feature.properties.NAME_AR || feature.properties.Name_AR;
-    },
+        var searchControl = new L.Control.Search({
+            layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
+            propertyName: 'NAME_AR',
+            moveToLocation: function(latlng, title, map) {
+                map.setView(latlng, 15);
+            }
         });
 
         searchControl.on('search:locationfound', function(e) {
