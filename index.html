@@ -285,38 +285,16 @@
 
         L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-       // Define the function to get the property name based on the layer type
-function getPropertyName(layer) {
-    // Check the layer type and return the appropriate field name
-    if (layer === hospitalLayer || layer === pharmacyLayer) {
-        return 'NAME_AR';
-    } else if (layer === policeLayer || layer === civilLayer) {
-        return 'Name_AR';
-    }
-}
-
-// Create a feature group with the layers
-var layers = L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]);
-
-// Initialize the search control
-var searchControl = new L.Control.Search({
-    layer: layers,
-    propertyName: '', // Will be set later
-    moveToLocation: function(latlng, title, map) {
-        map.setView(latlng, 15);
+       var searchControl = new L.Control.Search({
+    layer: L.layerGroup([hospitalsLayer, civilLayer, pharmaciesLayer, policeLayer, zonesLayer]),
+    propertyName: function(feature) {
+        return feature.properties.NAME_AR || feature.properties.Name_AR;
     },
-    textErr: 'No results found',
-    textPlaceholder: 'Search...'
-});
-
-// Override the _getPath function to check the appropriate property name
-searchControl._getPath = function(layer) {
-    this.options.propertyName = getPropertyName(layer); // Set the appropriate field name
-    return L.Util.getFieldValue(layer.feature.properties, this.options.propertyName);
-};
-
-// Add the search control to the map
-map.addControl(searchControl);
+    textPlaceholder: 'Search...',
+    moveToLocation: function(latlng, title, map) {
+        map.setView(latlng, 15); // Zoom level when searching
+    },
+        });
 
         searchControl.on('search:locationfound', function(e) {
             e.layer.openPopup();
