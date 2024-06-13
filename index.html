@@ -285,52 +285,52 @@
 
         L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-        var allLayers = L.featureGroup([
-    L.geoJSON(hospitalLayer, {
-        filter: function(feature, layer) {
-            return feature.properties.NAME_AR !== undefined;
-        }
-    }),
-    L.geoJSON(civilLayer, {
-        filter: function(feature, layer) {
-            return feature.properties.Name_AR !== undefined;
-        }
-    }),
-    L.geoJSON(pharmacyLayer, {
-        filter: function(feature, layer) {
-            return feature.properties.NAME_AR !== undefined;
-        }
-    }),
-    L.geoJSON(policeLayer, {
-        filter: function(feature, layer) {
-            return feature.properties.Name_AR !== undefined;
-        }
-    })
-]);
+       var allLayers = L.featureGroup([
+           L.geoJSON(hospitalLayer, {
+               filter: function(feature, layer) {
+                   return feature.properties.NAME_AR !== undefined;
+               }
+           }),
+           L.geoJSON(civilLayer, {
+               filter: function(feature, layer) {
+                   return feature.properties.Name_AR !== undefined;
+               }
+           }),
+           L.geoJSON(pharmacyLayer, {
+               filter: function(feature, layer) {
+                   return feature.properties.NAME_AR !== undefined;
+               }
+           }),
+           L.geoJSON(policeLayer, {
+               filter: function(feature, layer) {
+                   return feature.properties.Name_AR !== undefined;
+               }
+           })
+       ]);
 
-var searchControl = new L.Control.Search({
-    layer: allLayers,
-    propertyName: ['NAME_AR', 'Name_AR'],
-    moveToLocation: function(latlng, title, map) {
-        map.setView(latlng, 15);
-    }
-});
+       var searchControl = new L.Control.Search({
+           layer: allLayers,
+           propertyName: ['NAME_AR', 'Name_AR'],
+           moveToLocation: function(latlng, title, map) {
+               map.setView(latlng, 15);
+           }
+       });
 
-searchControl.on('search:locationfound', function(e) {
-    e.layer.openPopup();
-    if (map.routingControl) {
-        map.removeControl(map.routingControl);
-    }
-    map.routingControl = L.Routing.control({
-        waypoints: [
-            L.latLng(31.95, 35.2),  // Starting point, you can customize this
-            e.latlng
-        ],
-        routeWhileDragging: true
-    }).addTo(map);
-});
+       searchControl.on('search:locationfound', function(e) {
+           e.layer.openPopup();
+           if (map.routingControl) {
+               map.removeControl(map.routingControl);
+           }
+           map.routingControl = L.Routing.control({
+               waypoints: [
+                   L.latLng(31.95, 35.2),  // Starting point, you can customize this
+                   e.latlng
+               ],
+               routeWhileDragging: true
+           }).addTo(map);
+       });
 
-map.addControl(searchControl);
+       map.addControl(searchControl);
 
        var legend = L.control({position: 'bottomright'});
 
