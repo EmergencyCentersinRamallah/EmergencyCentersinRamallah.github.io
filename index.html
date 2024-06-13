@@ -288,7 +288,7 @@
         var searchControl = new L.Control.Search({
             layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
             propertyName: function(feature) {
-        return feature.properties.NAME_AR || feature.properties.Name_AR;
+                return feature.properties.NAME_AR || feature.properties.Name_AR;
             moveToLocation: function(latlng, title, map) {
                 map.setView(latlng, 15);
             }
