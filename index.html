@@ -265,9 +265,9 @@
 
         var zonesLayer = createGeoJsonLayer('RamallahZones.geojson', 'NAME', null, {color: 'orange', fillOpacity: 0});
         var hospitalLayer = createGeoJsonLayer('hospital.geojson', 'NAME_AR', pointToLayerFunctionFactory('red'), null);
-        var civilLayer = createGeoJsonLayer('ciivilld.geojson', 'Name_AR', pointToLayerFunctionFactory('yellow'), null);
+        var civilLayer = createGeoJsonLayer('ciivilld.geojson', 'Name', pointToLayerFunctionFactory('yellow'), null);
         var pharmacyLayer = createGeoJsonLayer('pharmacy.geojson', 'NAME_AR', pointToLayerFunctionFactory('green'), null);
-        var policeLayer = createGeoJsonLayer('Police.geojson', 'Name_AR', pointToLayerFunctionFactory('blue'), null);
+        var policeLayer = createGeoJsonLayer('Police.geojson', 'NAME_AR_1', pointToLayerFunctionFactory('blue'), null);
 
         zonesLayer.addTo(map);
         hospitalLayer.addTo(map);
@@ -285,25 +285,13 @@
 
         L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-        // إنشاء عنصر التحكم بالبحث
-var searchControl = new L.Control.Search({
-    layer: L.featureGroup([hospitalLayer, pharmacyLayer, civilLayer, policeLayer]), // تجميع الطبقات في مجموعة واحدة
-    propertyName: function(layer) {
-        if (layer.feature.properties.NAME_AR) {
-            return layer.feature.properties.NAME_AR; // للمستشفيات والصيدليات
-        } else if (layer.feature.properties.Name_AR) {
-            return layer.feature.properties.Name_AR; // للدفاع المدني والشرطة
-        } else {
-            return '';
-        }
-    },
-    moveToLocation: function(latlng, title, map) {
-        map.setView(latlng, 15); // تعيين مستوى التكبير عند العثور على موقع البحث
-    }
-});
-
-// إضافة عنصر التحكم بالبحث إلى الخريطة
-map.addControl(searchControl);
+        var searchControl = new L.Control.Search({
+            layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
+            propertyName: 'NAME_AR',
+            moveToLocation: function(latlng, title, map) {
+                map.setView(latlng, 15);
+            }
+        });
 
         searchControl.on('search:locationfound', function(e) {
             e.layer.openPopup();
