@@ -202,109 +202,200 @@
                 maxZoom: 17,
                 attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
             }),
-            "Google Satellite": L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            "Stamen Watercolor": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+                attribution: 'Map tiles by <a href="https://stamen.com">Stamen Design</a>, under <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Data by <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, under <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY SA</a>.'
             }),
-            "Google Streets": L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                maxZoom: 20,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            "CartoDB Positron": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            }),
+            "Esri WorldImagery": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            }),
+            "Stamen Toner": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
+                attribution: 'Map tiles by <a href="https://stamen.com">Stamen Design</a>, under <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Data by <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, under <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY SA</a>.'
+            }),
+            "Thunderforest Landscape": L.tileLayer('https://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=YOUR_API_KEY', {
+                attribution: 'Maps &copy; Thunderforest, Data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }),
+            "Esri WorldStreetMap": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{x}/{y}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
             })
         };
 
         baseMaps["OpenStreetMap"].addTo(map);
+       
+        function createGeoJsonLayer(url, propertyName, pointToLayerFunction, style) {
+            var layer = L.geoJson(null, {
+                pointToLayer: pointToLayerFunction,
+                style: style,
+                onEachFeature: function (feature, layer) {
+                    var popupContent = '<b>' + (feature.properties[propertyName] || "No name") + '</b>';
+                    if (feature.properties.number_pho) {
+                        popupContent += '<br>Phone: ' + feature.properties.number_pho;
+                    }
+                    layer.bindPopup(popupContent);
+                }
+            });
+           
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    layer.addData(data);
+                    if (url === 'RamallahZones.geojson') {
+                        map.fitBounds(layer.getBounds());
+                    }
+                })
+                .catch(error => console.error('Error loading GeoJSON:', error));
 
-        var hospitalLayer = L.geoJson(null, {
-            pointToLayer: function (feature, latlng) {
-                return L.marker(latlng);
-            },
-            onEachFeature: function (feature, layer) {
-                layer.bindPopup('<strong>' + feature.properties.NAME_AR + '</strong>');
+            return layer;
+        }
+
+        function pointToLayerFunctionFactory(color) {
+            return function (feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 8,
+                    fillColor: color,
+                    color: color,
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
+            };
+        }
+
+        var zonesLayer = createGeoJsonLayer('RamallahZones.geojson', 'NAME', null, {color: 'orange', fillOpacity: 0});
+        var hospitalLayer = createGeoJsonLayer('hospital.geojson', 'NAME_AR', pointToLayerFunctionFactory('red'), null);
+        var civilLayer = createGeoJsonLayer('ciivilld.geojson', 'Name', pointToLayerFunctionFactory('yellow'), null);
+        var pharmacyLayer = createGeoJsonLayer('pharmacy.geojson', 'NAME_AR', pointToLayerFunctionFactory('green'), null);
+        var policeLayer = createGeoJsonLayer('Police.geojson', 'NAME_AR_1', pointToLayerFunctionFactory('blue'), null);
+
+        zonesLayer.addTo(map);
+        hospitalLayer.addTo(map);
+        civilLayer.addTo(map);
+        pharmacyLayer.addTo(map);
+        policeLayer.addTo(map);
+
+        var overlayMaps = {
+            "Hospitals": hospitalLayer,
+            "Civil Defense Centers": civilLayer,
+            "Pharmacies": pharmacyLayer,
+            "Police Stations": policeLayer,
+            "Ramallah Zones": zonesLayer
+        };
+
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        var searchControl = new L.Control.Search({
+    layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
+    propertyName: 'NAME_AR', // This is still required but will be ignored in custom filter function
+    moveToLocation: function(latlng, title, map) {
+        map.setView(latlng, 15);
+    },
+    filterData: function(text, records) {
+        var result = {};
+        for (var key in records) {
+            var properties = records[key].feature.properties;
+            if (properties.NAME_AR.toLowerCase().indexOf(text.toLowerCase()) !== -1 || 
+                properties.Name_AR.toLowerCase().indexOf(text.toLowerCase()) !== -1) {
+                result[key] = records[key];
             }
+        }
+        return result;
+    }
+});
+
+searchControl.on('search:locationfound', function(e) {
+    e.layer.openPopup();
+    if (map.routingControl) {
+        map.removeControl(map.routingControl);
+    }
+    map.routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(31.95, 35.2),  // نقطة البداية، يمكنك تخصيصها
+            e.latlng
+        ],
+        routeWhileDragging: true
+    }).addTo(map);
+});
+
+map.addControl(searchControl);
+
+
+       var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'legend');
+    div.innerHTML += '<b>Legend</b><br>';
+    div.innerHTML += '<i style="background: red; width: 18px; height: 18px; display: inline-block;"></i> Hospitals<br>';
+    div.innerHTML += '<i style="background: yellow; width: 18px; height: 18px; display: inline-block;"></i> Civil Defense Centers<br>';
+    div.innerHTML += '<i style="background: green; width: 18px; height: 18px; display: inline-block;"></i> Pharmacies<br>';
+    div.innerHTML += '<i style="background: blue; width: 18px; height: 18px; display: inline-block;"></i> Police Stations<br>';
+    div.innerHTML += '<i style="background: orange; width: 18px; height: 18px; display: inline-block;"></i> Ramallah Zones<br>';
+    return div;
+};
+
+legend.addTo(map);
+       
+         L.control.fullscreen({
+            position: 'topleft',
+            title: 'Full Screen',
+            titleCancel: 'Exit Full Screen',
+            forceSeparateButton: true
         }).addTo(map);
 
-        var civilLayer = L.geoJson(null, {
-            pointToLayer: function (feature, latlng) {
-                return L.marker(latlng);
+
+        // Adding scale control
+        L.control.scale().addTo(map);
+
+        // Adding print tool
+        var printer = L.easyPrint({
+            title: 'Print map',
+            position: 'topleft',
+            elementsToHide: '.legend, .leaflet-control-search'
+        }).addTo(map);
+
+        // Adding measure tool
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            primaryAreaUnit: 'sqmeters',
+            activeColor: '#FF8300',
+            completedColor: '#FF8300'
+        });
+        measureControl.addTo(map);
+
+        // Adding draw control
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        var drawControl = new L.Control.Draw({
+            position: 'topleft',
+            draw: {
+                polyline: true,
+                polygon: true,
+                circle: false,
+                rectangle: true,
+                marker: true
             },
-            onEachFeature: function (feature, layer) {
-                layer.bindPopup('<strong>' + feature.properties.NAME_AR + '</strong>');
+            edit: {
+                featureGroup: drawnItems,
+                remove: true
             }
-        }).addTo(map);
-
-        var pharmacyLayer = L.geoJson(null, {
-            pointToLayer: function (feature, latlng) {
-                return L.marker(latlng);
-            },
-            onEachFeature: function (feature, layer) {
-                layer.bindPopup('<strong>' + feature.properties.NAME_AR + '</strong>');
-            }
-        }).addTo(map);
-
-        var policeLayer = L.geoJson(null, {
-            pointToLayer: function (feature, latlng) {
-                return L.marker(latlng);
-            },
-            onEachFeature: function (feature, layer) {
-                layer.bindPopup('<strong>' + feature.properties.NAME_AR + '</strong>');
-            }
-        }).addTo(map);
-
-        var zonesLayer = L.geoJson(null, {
-            style: function (feature) {
-                return {
-                    color: "#000",
-                    fillColor: "#fff",
-                    fillOpacity: 0.5,
-                    weight: 1
-                };
-            },
-            onEachFeature: function (feature, layer) {
-                layer.bindPopup('<strong>' + feature.properties.Name_AR + '</strong>');
-            }
-        }).addTo(map);
-
-        L.control.layers(baseMaps, {
-            'Hospitals': hospitalLayer,
-            'Civil Defense Centers': civilLayer,
-            'Pharmacies': pharmacyLayer,
-            'Police Stations': policeLayer,
-            'Ramallah Zones': zonesLayer
-        }).addTo(map);
-
-        L.control.search({
-            layer: L.layerGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer, zonesLayer]),
-            propertyName: 'NAME_AR',
-            initial: false,
-            collapsed: true,
-            textPlaceholder: 'Search...'
-        }).addTo(map);
-
-        document.getElementById('toggleHospitals').addEventListener('change', function() {
-            this.checked ? map.addLayer(hospitalLayer) : map.removeLayer(hospitalLayer);
         });
 
-        document.getElementById('toggleCivil').addEventListener('change', function() {
-            this.checked ? map.addLayer(civilLayer) : map.removeLayer(civilLayer);
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function (event) {
+            var layer = event.layer;
+            drawnItems.addLayer(layer);
         });
 
-        document.getElementById('togglePharmacies').addEventListener('change', function() {
-            this.checked ? map.addLayer(pharmacyLayer) : map.removeLayer(pharmacyLayer);
-        });
-
-        document.getElementById('togglePolice').addEventListener('change', function() {
-            this.checked ? map.addLayer(policeLayer) : map.removeLayer(policeLayer);
-        });
-
-        document.getElementById('toggleZones').addEventListener('change', function() {
-            this.checked ? map.addLayer(zonesLayer) : map.removeLayer(zonesLayer);
-        });
-
-        L.control.locate({
-            position: 'topright',
+        // Adding locate user control
+        var locateUserControl = L.control.locate({
+            position: 'topleft',
             drawCircle: true,
             follow: true,
-            setView: true,
+            setView: 'untilPan',
             keepCurrentZoomLevel: true,
             markerStyle: {
                 weight: 1,
@@ -323,7 +414,7 @@
                 outsideMapBoundsMsg: "You seem located outside the boundaries of the map"
             },
             locateOptions: {
-                maxZoom: 19,
+                maxZoom: 18,
                 watch: true,
                 enableHighAccuracy: true,
                 maximumAge: 10000,
@@ -331,71 +422,56 @@
             }
         }).addTo(map);
 
-        map.on('click', function (e) {
-            var coord = e.latlng;
-            var lat = coord.lat.toFixed(6);
-            var lng = coord.lng.toFixed(6);
-            document.getElementById('coordinates').innerHTML = "Latitude: " + lat + "<br>Longitude: " + lng;
+        // Trigger locate user function on load
+        map.on('load', function() {
+            locateUserControl.start();
         });
 
-        document.getElementById('destination').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                var coords = this.value.split(',');
-                if (coords.length === 2) {
-                    var lat = parseFloat(coords[0]);
-                    var lng = parseFloat(coords[1]);
-                    if (!isNaN(lat) && !isNaN(lng)) {
-                        L.Routing.control({
-                            waypoints: [
-                                L.latLng(lat, lng)
-                            ],
-                            router: L.Routing.mapbox('your-mapbox-access-token-here')
-                        }).addTo(map);
-                    }
-                }
-            }
+        map.whenReady(function() {
+            locateUserControl.start();
         });
 
-        L.control.sidebar('sidebar').addTo(map);
-
-        var northArrow = L.control({position: 'topright'});
-        northArrow.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'leaflet-control-northarrow');
-            return div;
-        };
-        northArrow.addTo(map);
-
-        // Adding fullscreen control to the map
-        L.control.fullscreen().addTo(map);
-
-        // Printing map control
-        L.easyPrint({
-            title: 'Print map',
-            position: 'topleft',
-            elementsToHide: 'p, h2'
+        // Adding routing control
+        var routingControl = L.Routing.control({
+            waypoints: [],
+            routeWhileDragging: true,
+            geocoder: L.Control.Geocoder.nominatim()
         }).addTo(map);
 
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
+        // Adding a button to start routing
+        var routingButton = L.easyButton('fa-location-arrow', function(btn, map){
+            // Use the geolocation API to get the current position
+            map.locate({setView: true, maxZoom: 16});
+            map.on('locationfound', function(e){
+                var currentLocation = e.latlng;
 
-        var drawControl = new L.Control.Draw({
-            edit: {
-                featureGroup: drawnItems
-            }
-        });
-        map.addControl(drawControl);
+                // Open a popup to select the destination
+                L.popup()
+                    .setLatLng(currentLocation)
+                    .setContent('<b>Select your destination</b><br><button onclick="setRoutingDestination()">Set Destination</button>')
+                    .openOn(map);
 
-        map.on('draw:created', function (e) {
-            var type = e.layerType,
-                layer = e.layer;
-
-            if (type === 'marker') {
-                layer.bindPopup('A popup!');
-            }
-
-            drawnItems.addLayer(layer);
+                window.setRoutingDestination = function() {
+                    var destination = L.DomUtil.get('destination').value;
+                    L.Routing.control({
+                        waypoints: [
+                            currentLocation,
+                            L.latLng(destination)
+                        ],
+                        routeWhileDragging: true
+                    }).addTo(map);
+                    map.closePopup();
+                }
+            });
+        }, 'Get Directions').addTo(map);
+       
+        // Function to toggle showing coordinates on button click
+        var showCoordinatesButton = document.getElementById('showCoordinatesButton');
+        showCoordinatesButton.addEventListener('click', function() {
+            var coordinatesDiv = document.getElementById('coordinates');
+            coordinatesDiv.style.display = 'block'; // Show coordinates div
         });
     </script>
-    </div>
+</div>
 </body>
 </html>
