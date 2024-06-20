@@ -286,40 +286,28 @@
         L.control.layers(baseMaps, overlayMaps).addTo(map);
 
         var searchControl = new L.Control.Search({
-    layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
-    propertyName: 'NAME_AR', // This is still required but will be ignored in custom filter function
-    moveToLocation: function(latlng, title, map) {
-        map.setView(latlng, 15);
-    },
-    filterData: function(text, records) {
-        var result = {};
-        for (var key in records) {
-            var properties = records[key].feature.properties;
-            if (properties.NAME_AR.toLowerCase().indexOf(text.toLowerCase()) !== -1 || 
-                properties.Name_AR.toLowerCase().indexOf(text.toLowerCase()) !== -1) {
-                result[key] = records[key];
+            layer: L.featureGroup([hospitalLayer, civilLayer, pharmacyLayer, policeLayer]),
+            propertyName: 'NAME_AR',
+            moveToLocation: function(latlng, title, map) {
+                map.setView(latlng, 15);
             }
-        }
-        return result;
-    }
-});
+        });
 
-searchControl.on('search:locationfound', function(e) {
-    e.layer.openPopup();
-    if (map.routingControl) {
-        map.removeControl(map.routingControl);
-    }
-    map.routingControl = L.Routing.control({
-        waypoints: [
-            L.latLng(31.95, 35.2),  // نقطة البداية، يمكنك تخصيصها
-            e.latlng
-        ],
-        routeWhileDragging: true
-    }).addTo(map);
-});
+        searchControl.on('search:locationfound', function(e) {
+            e.layer.openPopup();
+            if (map.routingControl) {
+                map.removeControl(map.routingControl);
+            }
+            map.routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(31.95, 35.2),  // Starting point, you can customize this
+                    e.latlng
+                ],
+                routeWhileDragging: true
+            }).addTo(map);
+        });
 
-map.addControl(searchControl);
-
+        map.addControl(searchControl);
 
        var legend = L.control({position: 'bottomright'});
 
